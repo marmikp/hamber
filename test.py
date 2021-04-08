@@ -7,7 +7,8 @@ import re
 from scipy.ndimage import interpolation as inter
 from pdf2image import convert_from_path
 
-cv2.namedWindow("", cv2.WINDOW_NORMAL)
+# cv2.namedWindow("", cv2.WINDOW_NORMAL)
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 def correct_skew(image, delta=1, limit=5):
     def determine_score(arr, angle):
@@ -47,8 +48,6 @@ def get_string(img, operation=None):
         img = cv2.filter2D(img, -1, kernel)
     if operation == "blur":
         img = cv2.blur(img, (3, 3))
-    cv2.imshow("", img)
-    cv2.waitKey(1)
     result = pytesseract.image_to_string(Image.fromarray(img))
 
     return result
@@ -61,12 +60,12 @@ def fetch_name_from_string(string):
 input_path = str(input("Enter directory Path : "))
 operations = [None, "sharp", "blur"]
 for file in os.listdir(input_path):
-    print(file)
+    print("Processing", file)
     if file.split(".")[-1] not in ["pdf", "PDF"]:
         continue
     if len(fetch_name_from_string(file.split(".")[0])):
         continue
-    images = convert_from_path(os.path.join(input_path, file))
+    images = convert_from_path(os.path.join(input_path, file), poppler_path=r"C:\Program Files\poppler-0.68.0\bin")
     for img in images:
         st = False
         for operation in operations:
@@ -86,3 +85,4 @@ for file in os.listdir(input_path):
             break
 
 print("All files are successfully renamed.")
+
